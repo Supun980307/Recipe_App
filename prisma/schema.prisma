@@ -8,9 +8,9 @@ datasource db {
 }
 
 model categories {
-  cat_id            String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  category_name     String
-  recipe_categories recipe_categories[]
+  cat_id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  category_name String
+  recipes       recipes[]
 }
 
 model comments {
@@ -33,28 +33,20 @@ model ratings {
   users      users?   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ratings_users")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model recipe_categories {
-  cat_id        String?     @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  recipe_cat_id String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  categories    categories? @relation(fields: [cat_id], references: [cat_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recipecategories_categories")
-  recipes       recipes[]
-
-  @@ignore
-}
-
 model recipes {
-  recipe_id         String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  titel             String
+  recipe_id         String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title             String
   image_url         String?
-  user_id           String?            @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id           String?     @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   description       String?
-  created_at        DateTime           @db.Timestamp(6)
-  cat_id            String?            @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  ingredients       String?
+  directions        String?
+  cat_id            String?     @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  created_at        DateTime    @db.Timestamp(6)
   comments          comments[]
   ratings           ratings[]
-  recipe_categories recipe_categories? @relation(fields: [cat_id], references: [recipe_cat_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recipes_recipecategory")
-  users             users?             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recipes_users")
+  recipe_categories categories? @relation(fields: [cat_id], references: [cat_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recipes_recipecategory")
+  users             users?      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_recipes_users")
 }
 
 model users {

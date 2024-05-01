@@ -1,14 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Logo from "../public/logo.png";
 import Link from "next/link";
 import ButtonRed from "./Button/ButtonRed";
 import { IoIosArrowDown } from "react-icons/io";
 import ButtonBlue from "./Button/ButtonBlue";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    router.push("/signin");
+  };
+
   const [isOpen, setIsOpen] = useState(false);
 
   const handleToggleMenu = () => {
@@ -127,15 +144,24 @@ const Navbar = () => {
             </Link>
           </div>
           <div className="flex gap-4">
-            <Link href="/signin">
-              <ButtonBlue text="Sign In" />
-            </Link>
-            <Link href="/signup">
-              <ButtonBlue text="Sign Up" />
-            </Link>
-            <Link href="#">
-              <ButtonRed text="Logout" />
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="rounded-md px-2 sm:px-4 py-1 text-[15px] md:px-8 md:py-2.5 overflow-hidden group bg-red-500
+              relative text-white hover:ring-2 hover:ring-offset-2 hover:ring-red-400"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link href="/signin">
+                  <ButtonBlue text="Sign In" />
+                </Link>
+                <Link href="/signup">
+                  <ButtonBlue text="Sign Up" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

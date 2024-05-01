@@ -1,16 +1,16 @@
-import { PrismaClient } from '@prisma/client'
+// import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
+// const prisma = new PrismaClient()
 
-async function main() {
-  // ... Prisma Client queries here
-}
+// async function main() {
+//   // ... Prisma Client queries here
+// }
 
-main()
-    .catch((e) => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+// main()
+//     .catch((e) => {
+//         console.error(e);
+//         process.exit(1);
+//     })
+//     .finally(async () => {
+//         await prisma.$disconnect();
+//     });

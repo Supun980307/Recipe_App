@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../../prisma';
 
-const SECRET_KEY = 'secret_key'; // Replace secret key
+const SECRET_KEY = 'abcdef';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Find the user by email
-      const user = await prisma.users.findUnique({ where: { email: email } });
+      const user = await prisma.users.findFirst({ where: { email: email } });
 
       if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
@@ -25,8 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Generate token
-      const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
-
+      const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '20h' });
+      console.log(token);
       res.status(200).json({ token });
     } catch (error) {
       console.error('Error logging in:', error);

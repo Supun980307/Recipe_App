@@ -1,25 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/router";
 import { Input } from "@nextui-org/react";
 import { EyeFilledIcon } from "../../components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../../components/EyeSlashFilledIcon";
 import Image from "next/image";
 import Logo from "../../public/logo.png";
 import ButtonBlue from "@components/Button/ButtonBlue";
+import { useRouter } from "next/navigation";
 
 const Signin: React.FC = () => {
   const [isVisible, setIsVisible] = React.useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
+  const router = useRouter();
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const router = useRouter();
-
   const handleSignin = async () => {
     try {
-      // Send credentials to your backend for authentication
       const response = await fetch("/api/signin", {
         method: "POST",
         headers: {
@@ -28,15 +27,24 @@ const Signin: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        const { token } = await response.json();
-
-        localStorage.setItem("token", token);
-
-        router.push("/");
-      } else {
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
       }
-    } catch (error) {}
+
+      // JSON response
+      console.log(response.body);
+      const data = await response.json();
+      const { token } = data;
+      console.log(token);
+
+      localStorage.setItem("token", token);
+      //localStorage.clear();
+
+      router.push("/");
+    } catch (error: any) {
+      console.error("Error logging in:", error.message);
+    }
   };
 
   return (
@@ -83,7 +91,13 @@ const Signin: React.FC = () => {
           className="max-w-2xl mt-4 mb-4"
         />
         <div className="text-center max-w-60 mx-auto">
-          <button onClick={handleSignin}>Sign In</button>
+          <button
+            className={`rounded-md px-2 sm:px-4 py-1 text-[15px] md:px-8 md:py-2.5 overflow-hidden group bg-blue-500
+    relative text-white hover:ring-2 hover:ring-offset-2 hover:ring-blue-400`}
+            onClick={handleSignin}
+          >
+            Sign In
+          </button>
         </div>
       </div>
       <div className="text-center mt-4 mb-4">

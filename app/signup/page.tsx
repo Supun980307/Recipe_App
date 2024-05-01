@@ -3,8 +3,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Logo from '../../public/logo.png';
 import ButtonBlue from '../../components/Button/ButtonBlue';
+import { useRouter } from "next/navigation";
+
 
 const Signup: React.FC = () => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -35,11 +38,13 @@ const Signup: React.FC = () => {
                 body: JSON.stringify(formData),
             });
     
-            if (!response.ok) {
+            if (response.ok) {
+                router.push('/signin');
+            } else {
                 throw new Error('Failed to create user');
             }
     
-            // Clear all entered data
+            // Clear data
             setFormData({
                 firstName: '',
                 lastName: '',
@@ -49,10 +54,9 @@ const Signup: React.FC = () => {
             });
         } catch (error) {
             console.error('Error creating user:', error);
-            // Handle error as needed
         }
     };
-    // Function to validate if passwords match
+    // passwords match
     const passwordsMatch = formData.password === formData.confirmPassword;
 
     return (
