@@ -2,20 +2,21 @@
 import React, { useState, useEffect } from "react";
 import ButtonBlue from "./Button/ButtonBlue";
 
-const AddRecipe: React.FC = () => {
-  const [formData, setFormData] = useState({
-    category: "",
-    recipeName: "",
-    description: "",
-    ingredients: "",
-    directions: "",
-    image: null as File | null,
-  });
-
+export default function AddRecipe () {
   const [categories, setCategories] = useState<Category[]>([]);
-  // const {data: session} = useSession();
+  const [recipeName, setRecipeName] = useState('');
+  const [description, setDescription] = useState('');
+  const [ingredients, setIngredients] = useState('');
+  const [category, setCategory] = useState('');
+  const [directions, setDirections] = useState('');
+  const [image, setImage] = useState<File | null>(null); // Updated state type for image
 
-  //console.log(session, 'session');
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // Use optional chaining to handle potential null or undefined
+    setImage(file || null); // Set image state to file or null
+  };
+
+ 
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -39,71 +40,43 @@ const AddRecipe: React.FC = () => {
     fetchCategories();
   }, []);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      console.log(e);
-      setFormData({
-        ...formData,
-        image: e.target.files[0],
+    const formData = new FormData();
+    formData.append('title', recipeName || '');
+    formData.append('description', description || '');
+    formData.append('directions', directions || '');
+    formData.append('ingredients', ingredients || '');
+    formData.append('category', category || '');
+    if (image) {
+      formData.append('image', image);
+    }
+
+    try {
+      const response = await fetch('/apit', {
+        method: 'POST',
+        body: formData,
       });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('Upload successful:', data);
+      // Handle success, e.g., show a success message to the user
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      // Handle error, e.g., set an error message state
     }
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setCategory(value)
   };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
-    console.log(formData);
-
-    
-
-    try {
-      const response = await fetch("/api/addRecipe", {
-        method: "POST",
-        body: JSON.stringify(formData),
-      });
-    //   console.log("Response status:", response.status);
-
-    // const responseBody = await response.text();
-    // console.log("Response body:", responseBody);
-
-    if (response.ok) {
-      //const resBody = JSON.parse(responseBody);
-
-      console.log("Recipe added successfully:");
-        // Reset form fields
-        setFormData({
-          category: "",
-          recipeName: "",
-          description: "",
-          ingredients: "",
-          directions: "",
-          image: null,
-        });
-      } else {
-        console.error("Failed to add recipe.....");
-      }
-    } catch (error) {
-      console.error("Error adding recipe:", error);
-    }
-  };
+ 
   return (
     <div className="p-4 max-w-2xl mx-auto border-large rounded-xl items-center mt-10">
       <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto mt-8">
@@ -117,7 +90,7 @@ const AddRecipe: React.FC = () => {
           <select
             id="category"
             name="category"
-            value={formData.category}
+            value={category}
             onChange={handleCategoryChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             required
@@ -157,8 +130,8 @@ const AddRecipe: React.FC = () => {
             type="text"
             id="recipeName"
             name="recipeName"
-            value={formData.recipeName}
-            onChange={handleInputChange}
+            value={recipeName}
+            onChange={(e) => setRecipeName(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             required
           />
@@ -173,8 +146,9 @@ const AddRecipe: React.FC = () => {
           <textarea
             id="description"
             name="description"
-            value={formData.description}
-            onChange={handleInputChange}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             required
           />
@@ -189,8 +163,9 @@ const AddRecipe: React.FC = () => {
           <textarea
             id="ingredients"
             name="ingredients"
-            value={formData.ingredients}
-            onChange={handleInputChange}
+            value={ingredients}
+            onChange={(e) => setIngredients(e.target.value)}
+            
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             required
           />
@@ -205,8 +180,8 @@ const AddRecipe: React.FC = () => {
           <textarea
             id="directions"
             name="directions"
-            value={formData.directions}
-            onChange={handleInputChange}
+            value={directions}
+            onChange={(e) => setDirections(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             required
           />
@@ -217,7 +192,6 @@ const AddRecipe: React.FC = () => {
   );
 };
 
-export default AddRecipe;
 
 interface Category {
   category_name: string;
